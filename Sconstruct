@@ -1,0 +1,4 @@
+VariantDir('bin', 'src', duplicate=False)
+
+env = Environment(CCFLAGS='-g')
+env.Program('bin/paskell', Glob('bin/*.c'))

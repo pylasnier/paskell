@@ -1,15 +1,8 @@
 #include <stdlib.h>
+#include <string.h>
 #include "util.h"
 
-int myF(void)
-{
-    Stack *pMyStack = malloc(sizeof(Stack));
-    free(pMyStack);
-    pMyStack = NULL;
-    return 0;
-}
-
-Stack *newStack(int elementSize)
+Stack *newStack(size_t elementSize)
 {
     Stack *stack = malloc(sizeof(Stack));
 
@@ -21,12 +14,39 @@ Stack *newStack(int elementSize)
         stack->ppStack = malloc(STACK_CHUNK * stack->elementSize);
         if (stack->ppStack == NULL)
         {
+            free(stack);
             stack = NULL;
         }
     }
 
     return stack;
 }
+
+Stack *copyStack(Stack *stack)
+{
+    Stack *newStack = malloc(sizeof(Stack));
+
+    if (stack != NULL)
+    {
+        newStack->elementSize = stack->elementSize;
+        newStack->length = stack->length;
+
+        newStack->ppStack = malloc(((newStack->length - 1) / STACK_CHUNK + 1) * STACK_CHUNK * newStack->elementSize);
+
+        if (newStack->ppStack == NULL)
+        {
+            free(newStack);
+            newStack = NULL;
+        }
+        else
+        {
+            memcpy(newStack->ppStack, stack->ppStack, newStack->length * newStack->elementSize);
+        }
+    }
+
+    return newStack;
+}
+
 
 int stackPush(Stack *stack, void *element)
 {

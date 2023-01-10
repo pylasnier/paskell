@@ -3,8 +3,12 @@
 
 #include "util.h"
 
-PExpression *evaluate(PExpression *definition);
+#define MEMORY_FAILURE  0x01
+
+PExpression evaluate(PExpression *expression, Stack *arguments);
 PExpression *pass(PExpression *function, PExpression *argument);
+
+unsigned int parameterCount(PType pType);
 
 typedef struct
 {
@@ -25,6 +29,11 @@ typedef struct
         };                              // Definition or partial
         unsigned int parameterIndex;    // Parameter
         PValue value;                   // Value
+        struct
+        {
+            int errorValue;
+            Stack *callStack;
+        };                              // Error
     };
 } PExpression;
 
@@ -33,14 +42,15 @@ typedef enum
     Definition,
     Partial,
     Parameter,
-    Value
+    Value,
+    Error
 } ExpressionType;
 
 typedef union
 {
     long longValue;
     float floatValue;
-    char charValue;
+    char *strValue;
 } PValue;
 
 
@@ -63,7 +73,7 @@ typedef enum
 {
     PInt,
     PFloat,
-    PChar
+    PStr
 } PBaseType;
 
 

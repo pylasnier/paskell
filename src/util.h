@@ -7,7 +7,7 @@
 
 typedef struct
 {
-    unsigned length;
+    unsigned int length;
     size_t elementSize;
     void **ppStack;
 } Stack;

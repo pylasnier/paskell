@@ -1,18 +1,47 @@
 #include <stdlib.h>
 #include "expression.h"
 
-PExpression *evaluate(PExpression *expression)
+PExpression evaluate(PExpression *expression, Stack *arguments)
 {
     if (expression == NULL
         || expression->expressionType != Definition
         && expression->expressionType != Partial
-        || !expression->pType.isBaseType)
-            return expression;
+        || parameterCount(expression->pType) != arguments->length)
+            return *expression;
 
 
-    
+    typedef struct
+    {
+        PExpression *enclosingExpression;
+        Stack *subExpressions;
+        Stack *operatingStack;
+    } Scope;
 
-    return expression;
+    PExpression returnExpression;
+
+    Stack *callStack;
+    Scope *initialScope;
+
+    callStack = newStack(sizeof(Scope *));
+
+    if (callStack == NULL
+        || stackPush(callStack, Scope))
+    {
+        returnExpression.expressionType = Error;
+        returnExpression.errorValue = MEMORY_FAILURE;
+        returnExpression.callStack = NULL;
+    }
+    else
+    {
+        stackPush(callStack, expression);
+    }
+
+    while (callStack != NULL || callStack->length)
+    {
+
+    }
+
+    return returnExpression;
 }
 
 PExpression *pass(PExpression *function, PExpression *argument)
@@ -60,9 +89,24 @@ PExpression *pass(PExpression *function, PExpression *argument)
         }
         else
         {
+            argument->expressionType = Definition;
             result->pType = function->pType.returnType;
         }
     }
 
     return result;
+}
+
+
+unsigned int parameterCount(PType pType)
+{
+    unsigned int count = 0;
+
+    while (!pType.isBaseType)
+    {
+        pType = pType.returnType;
+        count++;
+    }
+
+    return count;
 }
